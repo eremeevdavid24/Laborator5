@@ -1,0 +1,41 @@
+name: Python application
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'windows-latest']
+        python-version: ['3.8', '3.9','3.10']
+
+    steps:
+      - name: Checkout cod
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Instalează dependențe
+        run: |
+          pip install flake8 pytest
+
+      - name: Rulează flake8
+        run: flake8 .
+
+      - name: Rulează pytest și salvează rezultatul
+        run: pytest > result.log
+
+      - name: Upload result.log ca artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results-${{ matrix.os }}-${{ matrix.python-version }}
+          path: result.log
